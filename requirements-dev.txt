@@ -1,0 +1,26 @@
+# Include production dependencies
+-r requirements.txt
+
+# Testing
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0
+
+# Code Quality
+black>=24.1.0
+ruff>=0.2.0
+mypy>=1.8.0
+pre-commit>=3.6.0
+
+# Development Tools
+ipython>=8.20.0
+ipdb>=0.13.13
+
+# Optional: Local LLM
+ollama>=0.1.0
+
+# Optional: Advanced Features
+chromadb>=0.4.22
+langchain>=0.1.5
+langchain-groq>=0.0.1

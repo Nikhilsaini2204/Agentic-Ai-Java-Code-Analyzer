@@ -1,0 +1,175 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "java-code-analyzer"
+version = "0.1.0"
+description = "Production-grade agentic AI system for Java code analysis"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+keywords = ["ai", "agent", "code-analysis", "java", "llm"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Quality Assurance",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+dependencies = [
+    "groq>=0.4.0",              # Groq API client
+    "anthropic>=0.21.0",        # Claude API client (fallback)
+    "openai>=1.12.0",           # OpenAI-compatible clients
+    "pydantic>=2.6.0",          # Data validation
+    "pydantic-settings>=2.1.0", # Settings management
+    "python-dotenv>=1.0.0",     # Environment variables
+    "rich>=13.7.0",             # Beautiful terminal output
+    "typer>=0.9.0",             # CLI framework
+    "loguru>=0.7.2",            # Advanced logging
+    "tenacity>=8.2.3",          # Retry logic
+    "httpx>=0.26.0",            # Async HTTP client
+    "aiofiles>=23.2.1",         # Async file operations
+    "pyyaml>=6.0.1",            # YAML config parsing
+    "orjson>=3.9.15",           # Fast JSON parsing
+    "jinja2>=3.1.3",            # Template engine for prompts
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",            # Testing framework
+    "pytest-asyncio>=0.23.0",   # Async test support
+    "pytest-cov>=4.1.0",        # Coverage reporting
+    "pytest-mock>=3.12.0",      # Mocking
+    "black>=24.1.0",            # Code formatting
+    "ruff>=0.2.0",              # Fast linting
+    "mypy>=1.8.0",              # Type checking
+    "pre-commit>=3.6.0",        # Git hooks
+    "ipython>=8.20.0",          # Interactive shell
+    "ipdb>=0.13.13",            # Debugger
+]
+
+local-llm = [
+    "ollama>=0.1.0",            # Local LLM support
+]
+
+advanced = [
+    "chromadb>=0.4.22",         # Vector database for memory
+    "langchain>=0.1.5",         # Optional agent framework
+    "langchain-groq>=0.0.1",    # LangChain Groq integration
+]
+
+[project.scripts]
+java-analyzer = "analyzer.cli.main:app"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/java-code-analyzer"
+Documentation = "https://github.com/yourusername/java-code-analyzer/docs"
+Repository = "https://github.com/yourusername/java-code-analyzer"
+Issues = "https://github.com/yourusername/java-code-analyzer/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["analyzer*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # unused imports OK in __init__.py
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=analyzer",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow running tests",
+    "llm: Tests that call LLM APIs",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/__init__.py",
+    "*/cli/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
