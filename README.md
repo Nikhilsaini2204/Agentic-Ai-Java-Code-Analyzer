@@ -186,7 +186,7 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 ## 📧 Contact
 
 - Issues: [GitHub Issues](https://github.com/yourusername/java-code-analyzer/issues)
-- Email: your.email@example.com
+- Email: nikhilsaini6742@gmail.com
 
 ---
 
