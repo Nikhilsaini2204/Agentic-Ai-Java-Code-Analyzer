@@ -12,17 +12,25 @@ class Message(BaseModel):
     """A message in the conversation."""
 
     role: str = Field(..., description="Role: 'system', 'user', 'assistant', or 'tool'")
-    content: str = Field(..., description="Message content")
+    content: str | None = Field(None, description="Message content")
     tool_call_id: str | None = Field(None, description="ID of tool call (for tool responses)")
     name: str | None = Field(None, description="Tool name (for tool responses)")
+    tool_calls: list[dict] | None = Field(None, description="Tool calls (for assistant messages)")
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for API calls."""
-        data = {"role": self.role, "content": self.content}
+        data: dict[str, Any] = {"role": self.role}
+
+        # Content can be None for assistant messages with tool_calls
+        if self.content is not None:
+            data["content"] = self.content
+
         if self.tool_call_id:
             data["tool_call_id"] = self.tool_call_id
         if self.name:
             data["name"] = self.name
+        if self.tool_calls:
+            data["tool_calls"] = self.tool_calls
         return data
 
 

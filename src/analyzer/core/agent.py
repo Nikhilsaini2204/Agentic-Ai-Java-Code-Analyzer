@@ -171,6 +171,27 @@ Think step by step and explain your reasoning as you work."""
 
             # Check if LLM wants to use tools
             if response.has_tool_calls():
+                # Add assistant message with tool calls to history first
+                # This is required by the API before adding tool results
+                tool_calls_for_history = [
+                    {
+                        "id": tc.id,
+                        "type": "function",
+                        "function": {
+                            "name": tc.name,
+                            "arguments": __import__("json").dumps(tc.parameters),
+                        },
+                    }
+                    for tc in response.tool_calls
+                ]
+                self.messages.append(
+                    Message(
+                        role="assistant",
+                        content=response.content,  # May be None
+                        tool_calls=tool_calls_for_history,
+                    )
+                )
+
                 # Execute tools and continue loop
                 self._handle_tool_calls(response.tool_calls)
 

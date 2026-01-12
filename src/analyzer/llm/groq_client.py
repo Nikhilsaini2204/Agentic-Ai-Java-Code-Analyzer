@@ -67,11 +67,16 @@ class GroqLLMClient(BaseLLM):
             # Convert messages to API format
             api_messages = [msg.to_dict() for msg in messages]
 
+            # Use lower temperature when tools are provided for more reliable tool calling
+            effective_temperature = temperature or self.default_temperature
+            if tools:
+                effective_temperature = min(effective_temperature, 0.3)
+
             # Prepare request parameters
             request_params = {
                 "model": self.model,
                 "messages": api_messages,
-                "temperature": temperature or self.default_temperature,
+                "temperature": effective_temperature,
                 "max_tokens": max_tokens or self.default_max_tokens,
             }
 
@@ -79,6 +84,8 @@ class GroqLLMClient(BaseLLM):
             if tools:
                 request_params["tools"] = tools
                 request_params["tool_choice"] = "auto"
+                # Disable parallel tool calls to prevent malformed function call generation
+                request_params["parallel_tool_calls"] = False
 
             logger.debug(
                 f"Sending request to Groq: {len(api_messages)} messages, "
@@ -92,8 +99,21 @@ class GroqLLMClient(BaseLLM):
             return self._parse_response(response)
 
         except Exception as e:
-            logger.error(f"Groq API call failed: {str(e)}")
-            raise LLMConnectionError(f"Groq API error: {str(e)}")
+            error_str = str(e)
+            logger.error(f"Groq API call failed: {error_str}")
+
+            # Check for tool_use_failed error - model generated malformed function calls
+            if "tool_use_failed" in error_str:
+                logger.warning(
+                    "Model generated malformed function call. "
+                    "This can happen with some Llama models. Consider using a different model."
+                )
+                raise LLMConnectionError(
+                    "Groq tool calling failed: The model generated an invalid function call format. "
+                    "Try using 'llama-3.1-70b-versatile' or 'llama3-70b-8192' instead."
+                )
+
+            raise LLMConnectionError(f"Groq API error: {error_str}")
 
     def _parse_response(self, response) -> LLMResponse:
         """

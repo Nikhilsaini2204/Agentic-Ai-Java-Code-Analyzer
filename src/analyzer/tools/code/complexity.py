@@ -207,28 +207,28 @@ class ComplexityAnalysisTool(BaseTool):
         # Complexity metrics
         result.append("\n🔀 Complexity:")
         cc = metrics["cyclomatic_complexity"]
-        result.append(f"   Cyclomatic Complexity: {cc:3d}  ", end="")
 
         if cc <= 10:
-            result.append("✅ Low (Good)")
+            cc_status = "✅ Low (Good)"
         elif cc <= 20:
-            result.append("⚠️  Moderate (Consider refactoring)")
+            cc_status = "⚠️  Moderate (Consider refactoring)"
         elif cc <= 50:
-            result.append("🔴 High (Refactoring recommended)")
+            cc_status = "🔴 High (Refactoring recommended)"
         else:
-            result.append("🚨 Very High (Critical - refactor immediately)")
+            cc_status = "🚨 Very High (Critical - refactor immediately)"
 
-        result.append("")
+        result.append(f"   Cyclomatic Complexity: {cc:3d}  {cc_status}")
 
         depth = metrics["max_nesting_depth"]
-        result.append(f"   Max Nesting Depth:     {depth:3d}  ", end="")
 
         if depth <= 3:
-            result.append("✅ Good")
+            depth_status = "✅ Good"
         elif depth <= 5:
-            result.append("⚠️  Moderate (simplify if possible)")
+            depth_status = "⚠️  Moderate (simplify if possible)"
         else:
-            result.append("🔴 Too deep (refactor to reduce nesting)")
+            depth_status = "🔴 Too deep (refactor to reduce nesting)"
+
+        result.append(f"   Max Nesting Depth:     {depth:3d}  {depth_status}")
 
         result.append("")
 
